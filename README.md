@@ -3,9 +3,12 @@ Whistle speed control for model trains, using microcontroller, FFT tone analysis
 
 The program purpose is to control a model train motor with independent power supply e.g. from USB power bank for outdoors. 
 Following options exist:
+
 a) Control by a whistle Morse code signals. Works with microphone input and FFT tone analysis in a Teensy 4.0 microcontroller
-b) Switch Morse code input
-c) SerialMonitor input commands by typing letters, requires connection via USB
+
+a) Switch Morse code input
+
+a) SerialMonitor input commands by typing letters, requires connection via USB
 
 The project is inspired by the project 'free your model train' (FYMT) proposed by Frei Softwarefreunde
 at https://freie-software.org/free-your-model-train/
