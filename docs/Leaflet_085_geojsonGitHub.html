@@ -1,0 +1,791 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <!-- Leaflet Kartendarstellung für Zementwerke und CO2-Capture Projekte -->
+  <!-- Version 083, rj, 30.8.2025, www.vdz-online.de, geodata@vdz-online.de -->
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/> 
+    <style>
+      html, body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      #map {
+        /* configure the size of the map */
+        width: 100%;
+        height: 70%;
+      }
+    </style>
+
+	<!-- leaflet.js library-->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+		crossorigin=""></script>
+	<!-- leaflet fullscreen plugin -->
+	<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+	<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+	
+	<!-- map legend svg symbols -->
+	<svg height="0">
+		<symbol id="red_circle">
+		   width="66"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<circle
+			   style="fill:#ff0000;fill-opacity:0.2;stroke:#ff0000;stroke-width:12;stroke-opacity:0.6"
+			   cx="33"
+			   cy="33"
+			   r="25" />
+		</symbol>
+
+		<symbol id="orange_dot">
+		   width="66"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<circle
+			   style="fill:#ff8833;fill-opacity:0.9;stroke:#000000;stroke-width:4;stroke-dasharray:none;stroke-opacity:1"
+			   cx="33"
+			   cy="33"
+			   r="25" />
+		</symbol>
+
+		<symbol id="blue_dot">
+		   width="66"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<circle
+			   style="fill:#3388ff;fill-opacity:0.9;stroke:#000000;stroke-width:4;stroke-dasharray:none;stroke-opacity:1"
+			   cx="33"
+			   cy="33"
+			   r="25" />
+		</symbol>
+
+		<symbol  id="developing_circles">
+		   width="120"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#ffc107;fill-opacity:0.2;stroke:#ffc107;stroke-width:10;stroke-opacity:0.8"
+				 cx="17"
+				 cy="18"
+				 r="13" />
+			  <circle
+				 style="fill:#ffeb3b;fill-opacity:0.2;stroke:#ffeb3b;stroke-width:10;stroke-opacity:0.8"
+				 cx="38"
+				 cy="22"
+				 r="17" />
+			  <circle
+				 style="fill:#8bc34a;fill-opacity:0.2;stroke:#8bc34a;stroke-width:10;stroke-opacity:0.8"
+				 cx="60"
+				 cy="25"
+				 r="20" />
+			  <circle
+				 style="fill:#4caf50;fill-opacity:0.2;stroke:#4caf50;stroke-width:10;stroke-opacity:0.8"
+				 cx="88"
+				 cy="30"
+				 r="25" />
+			</g>
+		</symbol>
+
+		<symbol id="operational_dots">
+		   width="120"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#ffc107;fill-opacity:0.9;stroke:#009688;stroke-width:10;stroke-opacity:0.9"
+				 cx="17"
+				 cy="18"
+				 r="13" />
+			  <circle
+				 style="fill:#ffeb3b;fill-opacity:0.9;stroke:#009688;stroke-width:10;stroke-opacity:0.9"
+				 cx="38"
+				 cy="22"
+				 r="17" />
+			  <circle
+				 style="fill:#8bc34a;fill-opacity:0.9;stroke:#009688;stroke-width:10;stroke-opacity:0.9"
+				 cx="60"
+				 cy="25"
+				 r="20" />
+			  <circle
+				 style="fill:#4caf50;fill-opacity:0.9;stroke:#009688;stroke-width:10;stroke-opacity:0.9"
+				 cx="88"
+				 cy="30"
+				 r="25" />
+			</g>
+		</symbol>
+		
+		<symbol id="pilot_scale">
+		   width="86"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#ffc107;fill-opacity:0.2;stroke:#ffc107;stroke-width:8;stroke-opacity:0.8"
+				 cx="25"
+				 cy="25"
+				 r="11" />
+			  <circle
+				 style="fill:#ffc107;fill-opacity:0.9;stroke:#009688;stroke-width:8;stroke-opacity:0.9"
+				 cx="47"
+				 cy="25"
+				 r="11" />
+			</g>
+		</symbol>
+		
+		<symbol id="demo_scale">
+		   width="86"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#ffeb3b;fill-opacity:0.2;stroke:#ffeb3b;stroke-width:8;stroke-opacity:0.8"
+				 cx="25"
+				 cy="25"
+				 r="13" />
+			  <circle
+				 style="fill:#ffeb3b;fill-opacity:0.9;stroke:#009688;stroke-width:8;stroke-opacity:0.9"
+				 cx="50"
+				 cy="25"
+				 r="13" />
+			</g>
+		</symbol>
+		
+		<symbol id="partial_scale">
+		   width="86"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#8bc34a;fill-opacity:0.2;stroke:#8bc34a;stroke-width:8;stroke-opacity:0.8"
+				 cx="25"
+				 cy="25"
+				 r="18" />
+			  <circle
+				 style="fill:#8bc34a;fill-opacity:0.9;stroke:#009688;stroke-width:8;stroke-opacity:0.9"
+				 cx="53"
+				 cy="25"
+				 r="18" />
+			</g>
+		</symbol>
+		
+		<symbol id="full_scale">
+		   width="86"
+		   height="66"
+		   xmlns="http://www.w3.org/2000/svg"
+			<g>
+			  <circle
+				 style="fill:#4caf50;fill-opacity:0.2;stroke:#4caf50;stroke-width:8;stroke-opacity:0.8"
+				 cx="28"
+				 cy="30"
+				 r="23" />
+			  <circle
+				 style="fill:#4caf50;fill-opacity:0.9;stroke:#009688;stroke-width:8;stroke-opacity:0.9"
+				 cx="58"
+				 cy="30"
+				 r="23" />
+			</g>
+		</symbol>
+	</svg>
+
+  </head>
+  <body>
+    <div id="map"></div>
+	<div id="info" style="padding: 10px; background: #f0f0f0; font-family: sans-serif">
+		<em>Klicke auf einen Punkt, um Details und Links anzuzeigen, oder Updates vorzuschlagen. Layer-Legende oben rechts nutzen oder Webseite mehrfach aktualisieren, um nicht dargestellte Datenpunkte einzublenden. Die relative Größe der Symbole ändert sich mit dem Browser-Zoom.</em>
+	</div>
+	
+    <script>
+		// Source of geojson data files cem.geojson and cc.geojson
+
+		//const cem_geojson_URL = 'https://www.vdz-online.de/fileadmin/Zementindustrie/jsonmap/cem.geojson';
+		const cem_geojson_URL = 'https://raw.githubusercontent.com/jorail/PiedPiper/refs/heads/main/docs/cem.geojson';
+		//const cem_geojson_URL = 'http://pc884.vdz.local/geo/data.geojson'; //'https://example.com/path/to/your/file.geojson'
+
+		//const cc_geojson_URL = 'https://www.vdz-online.de/fileadmin/Zementindustrie/jsonmap/cc.geojson';
+		const cc_geojson_URL = 'https://raw.githubusercontent.com/jorail/PiedPiper/refs/heads/main/docs/cc.geojson';
+	
+		// OpenStreetMap baselayer tiles
+		const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>'
+		});
+		
+		// OpenStreetMap Humanitarian baselayer tiles	  
+		const osmHOT = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a> | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>'
+		});
+	  
+		// ÖPNVKarte baselayer tiles
+		const oepnv = L.tileLayer('https://tile.memomaps.de/tilegen/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors | <a href="https://www.%C3%B6pnvkarte.de">ÖPNV-Karte</a> (<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>)'
+		});
+
+		// OpenTopoMap baselayer tiles
+		const openTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a> | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>)'
+		});
+
+		// Railway tiles - funktioniert derzeit nicht
+		/*const OpenRailwayMap = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; Map data: <a href="https://www.openstreetmap.org/copyright"> OpenStreetMap</a> contributors, Map Style: <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> <a href="http://www.openrailwaymap.org/">OpenRailwayMap</a> | Overlay <a href="mailto:geodata@vdz-online.de">Geodata@VDZ</a>'
+		});*/
+		
+		// Esri_WorldImagery baselayer tiles
+		const Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+			maxZoom: 19,
+			attribution: '&copy; Map tiles: Esri &mdash; <a href="https://www.arcgis.com/home/item.html?id=8e90a00a0a6845a49262e0b756f57a10">ESRI World Imagery</a> Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community</a> | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>)'
+		});
+		
+		// Esri_WorldGrayCanvas baselayer tiles
+		const Esri_WorldGrayCanvas = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+			attribution: '&copy; Map Tiles: Esri &mdash; Esri, DeLorme, NAVTEQ | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>)',
+			maxZoom: 16
+		});
+
+		// Esri_OceanBasemap baselayer tiles
+		const Esri_OceanBasemap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+			attribution: '&copy; Map Tiles: Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri | Overlay <a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20">Geodata@VDZ</a>)',
+			maxZoom: 13
+		});
+
+		const VDZ = L.layerGroup();
+		// VDZ marker Pin + popup
+		var redIcon = new L.Icon({
+		  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+		  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+		  iconSize: [19, 31],
+		  iconAnchor: [9, 31],
+		  popupAnchor: [1, -21],
+		  shadowSize: [31, 31]
+		});
+		L.marker([51.250364, 6.792241], {icon: redIcon}).bindPopup("<strong>VDZ</strong><br>Toulouser Alle 71<br>40476 Düsseldorf<br>Germany<br><a href='https://www.vdz-online.de/'>Website</a>,  <a href='mailto:info@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20'>E-Mail</a>,  <a href='https://www.vdz-online.de/kontakt-und-anfahrt'>Anfahrt</a>"
+		).addTo(VDZ).openPopup();
+		// VDZ marker Kreis + tooltip
+		var testMarker = L.circleMarker([51.250364, 6.792241], { 
+		  radius: 8,
+		  color: 'red',
+		  weight: 3,
+		  opacity: 0.6,
+		  interactive: true
+		}).addTo(VDZ);
+		testMarker.bindTooltip("<strong>VDZ</strong><br>Toulouser Alle 71<br>40476 Düsseldorf<br>Germany", { direction: "top" });
+		testMarker.on('mouseover', function() { this.openTooltip(); });
+		testMarker.on('mouseout', function() { this.closeTooltip(); });
+		
+		// initialize Leaflet map
+		const map = L.map('map', {
+			center: [39.73, -104.99],
+			zoom: 10,
+			fullscreenControl: true,
+			// OR
+			fullscreenControl: {
+				pseudoFullscreen: false // if true, fullscreen to page width and height
+			},
+			layers: [osm, VDZ]
+		}).setView({lat: 51.250364, lng: 6.792241}, 5);;
+		const baseLayers = { // define Base-Layers
+			'OpenStreetMap': osm,
+			'OpenStreetMap.HOT': osmHOT,
+			'ÖPNV-Karte': oepnv,
+			'OpenTopoMap': openTopoMap,
+			//'OpenRailwayMap' : OpenRailwayMap // Railway tiles - funktioniert derzeit nicht
+			'Esri World Imagery': Esri_WorldImagery,
+			'Esri World Grey Canvas': Esri_WorldGrayCanvas,
+			'Esri Ocean Basemap': Esri_OceanBasemap,
+		};
+		const overlays = { // define Overlys-Layers
+			'&nbsp;&nbsp;<svg width="18" height="24" viewBox="0 -24 66 86" style="align-items:center;"><use href="#red_circle"/></svg>&nbsp;&nbsp;&nbsp;&nbsp;VDZ': VDZ
+		};
+		const layerControl = L.control.layers(baseLayers, overlays).addTo(map); // Add Layers to map
+		L.control.scale({imperial: true, metric: true}).addTo(map); // show the scale bar on the lower left corner
+
+		function getColor(type) { // Funktion zur Auswahl der Farbe für Zementwerke und CO2-Capture Projekte
+			switch (type) {
+				case 'Zementklinkerwerk': return '#ff8833'; // Layer_1 orange
+				case 'Mahlwerk': return '#3388ff'; // Layer_2 blau
+				case 'C': return '#2ca02c'; // grün
+				case 'D': return '#d62728'; // rot
+				case 'Pilot': return '#ffc107'; // orange-gelb
+				case 'Demonstration': return '#ffeb3b'; // gelb
+				case 'xxx': return '#cddc39'; // grün-gelb
+				case 'Partial Scale': return '#8bc34a'; // gelb-grün (alternatively #70a236)
+				case 'Full Scale': return '#4caf50'; // grün
+				case 'In Operation': return '#009688'; // blau-grün
+				case 'xxx': return '#00bcd4'; // türkis	
+				case 'xxx': return '#03a9f4'; // mittelblau	
+				case 'xxx': return '#2196f3'; // blau					
+				default: return '#999999';  // grau für unbekannte Typen
+			}
+		}
+			
+		// =============================================================
+		// Layer 1+2 laden = Zementklinkerwerke und Mahlwerke: GeoJSON-Datei laden und Hinzufügen zur Karte
+		// =============================================================
+		function getRadius(value) { // Funktion zur Berechnung des Radius
+			const scaleRadius = 6;
+			const minRadius = scaleRadius / 2;
+			return (typeof value === 'number' && value > 0) ? Math.sqrt(Math.sqrt(value)) * scaleRadius : minRadius;
+		}
+			
+		// Layer 1+2 laden von URL der GeoJSON-Datei cem.geojson mit Geodaten der Zementwerke
+		fetch(cem_geojson_URL) // URL-Quelle wird am Beginn des Scripts ausgewählt
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Netzwerkantwort war nicht ok ' + response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {	
+				//console.log('GeoJSON-Daten geladen:', data); // Debugging: Anzeigen der geladenen Daten
+				// Split features into two groups
+				const KlinkerwerkeFeatures = data.features.filter(f => f.properties.type === 'Zementklinkerwerk');
+				const MahlwerkeFeatures = data.features.filter(f => f.properties.type === 'Mahlwerk');
+
+				//Layer 1 Zementklinkerwerke
+				var Layer_1 = L.geoJSON({ type: "FeatureCollection", features: KlinkerwerkeFeatures}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadius(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  fillColor: fillColor,
+						  color: "#000",
+						  weight: 1,
+						  opacity: 1,
+						  fillOpacity: 0.9,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+					    /*if (feature.properties && feature.properties.size) {
+							style: function (feature) {
+								return {radius: 4*feature.properties.size};
+							};
+							return L.circleMarker(latlng, {
+							  radius: feature.properties.size
+							});
+						};*/
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							/*var lat = e.target.getLatLng().lat;
+							var lng = e.target.getLatLng().lng;*/
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.de?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20Zementwerk&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20Zementwerk%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+					//style: function (feature) {
+						//return { color: "blue", weight: 8 };
+					//}
+				}).addTo(map);
+				
+				//Layer 2 Mahlwerke
+				var Layer_2 = L.geoJSON({ type: "FeatureCollection", features: MahlwerkeFeatures}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadius(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  fillColor: fillColor,
+						  color: "#000",
+						  weight: 1,
+						  opacity: 1,
+						  fillOpacity: 0.9,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20Zementwerk&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20Zementwerk%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+		
+				//Karte automatisch auf beide Teile der GeoJSON-Daten zoomen
+				var combinedBounds = Layer_1.getBounds().extend(Layer_2.getBounds());
+				map.fitBounds(combinedBounds);
+				//in Layer Control Legende ergänzen
+				layerControl.addOverlay(Layer_1, '&nbsp;&nbsp;<svg width="18" height="24" viewBox="0 -24 66 86"><use href="#orange_dot"/></svg>&nbsp;&nbsp;&nbsp;&nbsp;Zementklinkerwerke');
+				layerControl.addOverlay(Layer_2, '&nbsp;&nbsp;<svg width="18" height="24" viewBox="0 -24 66 86"><use href="#blue_dot"/></svg>&nbsp;&nbsp;&nbsp;&nbsp;Mahlwerke');
+			})
+			.catch(error => console.error('Fehler beim Laden der GeoJSON-Datei:', error));
+		
+		// =============================================================
+		// Layer 3, 4, 5, 6 ... laden = CO2-capture Projekte: GeoJSON-Datei laden und Hinzufügen zur Karte
+		// =============================================================
+		function getRadiusCC(value) { // Funktion zur Berechnung des Radius
+			const scaleRadius = 6;
+			const minRadius = scaleRadius / 2;
+			return (typeof value === 'number' && value > 0) ? Math.sqrt(Math.sqrt(value)) * scaleRadius : minRadius;
+		}
+		
+		// Layer 3, 4, 5, 6 ... laden von URL der GeoJSON-Datei cc.geojson mit Geodaten der CO2-capture Projekte
+		fetch(cc_geojson_URL) // URL-Quelle wird am Beginn des Scripts ausgewählt
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Netzwerkantwort war nicht ok ' + response.statusText);
+				}
+				return response.json();
+			})
+			.then(data => {	
+				//console.log('GeoJSON-Daten geladen:', data); // Debugging: Anzeigen der geladenen Daten
+				// Split features into two groups
+				const CC_TRLA_Features = data.features.filter(f => f.properties.status === 'Decomissioned');
+				const CC_TRLB_Features = data.features.filter(f => f.properties.status === 'Planning');
+				const CC_TRLC_Features = data.features.filter(f => f.properties.status === 'FEED');
+				const CC_TRLD_Features = data.features.filter(f => f.properties.status === 'Under construction');
+				const CC_TRLE_Features = data.features.filter(f => f.properties.status === 'In operation');
+
+				//Layer 3 CO2-capture TRL A
+				var Layer_3 = L.geoJSON({ type: "FeatureCollection", features: CC_TRLA_Features}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadiusCC(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  //fillColor: fillColor,
+						  color: fillColor,
+						  weight: 2,
+						  opacity: 0.8,
+						  //fillOpacity: 0.8,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_project + '" target="_blank" rel="noopener noreferrer">Project</a>, ' 
+								+ '<a href="' + feature.properties.url_news + '" target="_blank" rel="noopener noreferrer">News</a>, '
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20CO2-Capture-Projekt&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20CO2-Capture-Projekt%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+				
+				//Layer 4 CO2-capture TRL B
+				var Layer_4 = L.geoJSON({ type: "FeatureCollection", features: CC_TRLB_Features}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadiusCC(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  //fillColor: fillColor,
+						  color: fillColor,
+						  weight: 2,
+						  opacity: 0.8,
+						  //fillOpacity: 0.8,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_project + '" target="_blank" rel="noopener noreferrer">Project</a>, ' 
+								+ '<a href="' + feature.properties.url_news + '" target="_blank" rel="noopener noreferrer">News</a>, '
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20CO2-Capture-Projekt&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20CO2-Capture-Projekt%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+				
+				//Layer 5 CO2-capture TRL C
+				var Layer_5 = L.geoJSON({ type: "FeatureCollection", features: CC_TRLC_Features}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadiusCC(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  //fillColor: fillColor,
+						  color: fillColor,
+						  weight: 2,
+						  opacity: 0.8,
+						  //fillOpacity: 0.8,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_project + '" target="_blank" rel="noopener noreferrer">Project</a>, ' 
+								+ '<a href="' + feature.properties.url_news + '" target="_blank" rel="noopener noreferrer">News</a>, '								
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20CO2-Capture-Projekt&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20CO2-Capture-Projekt%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+				
+				//Layer 6 CO2-capture TRL D
+				var Layer_6 = L.geoJSON({ type: "FeatureCollection", features: CC_TRLD_Features}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadiusCC(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  //fillColor: fillColor,
+						  color: fillColor,
+						  weight: 2,
+						  opacity: 0.8,
+						  //fillOpacity: 0.8,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_project + '" target="_blank" rel="noopener noreferrer">Project</a>, ' 
+								+ '<a href="' + feature.properties.url_news + '" target="_blank" rel="noopener noreferrer">News</a>, '								
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20CO2-Capture-Projekt&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20CO2-Capture-Projekt%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+				
+				//Layer 7 CO2-capture TRL D
+				var Layer_7 = L.geoJSON({ type: "FeatureCollection", features: CC_TRLE_Features}, {
+					pointToLayer: function (feature, latlng) {
+						const radius = getRadiusCC(feature.properties.size);
+						const fillColor = getColor(feature.properties.type);
+						return L.circleMarker(latlng, {
+						  radius: radius,
+						  fillColor: fillColor,
+						  color: "#009688",
+						  weight: 2,
+						  opacity: 0.9,
+						  fillOpacity: 0.9,
+						  interactive: true
+						});
+					},
+					onEachFeature: function (feature, layer) {
+						if (feature.properties && feature.properties.title) { //replace City by Name when defined in GeoJson
+							layer.bindTooltip(feature.properties.title, {  //Mouse Hover-Event: Zeige Titel //replace City by title when defined in GeoJson
+								  permanent: false,
+								  direction: "right",
+								  offset: [0, 0],
+								  opacity: 0.8
+								});
+						};
+						if (feature.properties) { // Klick-Event: Popup zeigt Feature Properties
+							layer.bindPopup('<strong>' + feature.properties.name + '</strong> <br>' 
+								+ feature.properties.company + '<br>' 
+								+ feature.properties.city + ', ' + feature.properties.country + '<br>'
+								+ '<a href="' + feature.properties.url_project + '" target="_blank" rel="noopener noreferrer">Project</a>, ' 
+								+ '<a href="' + feature.properties.url_news + '" target="_blank" rel="noopener noreferrer">News</a>, '
+								+ '<a href="' + feature.properties.url_osmpin + '" target="_blank" rel="noopener noreferrer">Detail</a>, ' 
+								+ '<a href="' + feature.properties.url_sat + '" target="_blank" rel="noopener noreferrer">Luftbild</a>, '
+								+ '<a href="mailto:geodata@vdz-online.org?subject=RE:%20geodata@VDZ%20-%20Update%20zu%20CO2-Capture-Projekt&body=Update%20/%20Neue%20Informationen%20/%20Korrekturvorschlag%20zu%20CO2-Capture-Projekt%0A' 
+								+ feature.properties.title + ',%20' + feature.properties.country + ',%20ID=' + feature.properties.ID + ':%0A%0D...">Update?</a>', 
+								{
+								  direction: "top",
+								  offset: [0, 0],
+								  opacity: 0.8,
+								  autoClose: false,
+								  closeOnClick: false
+							}).openTooltip();
+					    };
+						layer.on('click', function(e) { // Klick-Event: Zeige Info in Info-Box
+							var props = feature.properties;
+							var html = "<table>";
+							for (var key in props) {
+							  html += "<tr><td><strong>" + key + ":</strong></td><td> " + props[key] + "</td></tr>";
+							}
+							html += "</table>";
+							document.getElementById("info").innerHTML = html;
+						});
+					},
+				}).addTo(map);
+		
+				/*//Karte automatisch auf alle Teile der GeoJSON-Daten zoomen
+				var combinedBounds = Layer_1.getBounds().extend(Layer_2.getBounds()).extend(Layer_3.getBounds()).extend(Layer_4.getBounds()).extend(Layer_5.getBounds()).extend(Layer_6.getBounds()).extend(Layer_7.getBounds());
+				map.fitBounds(combinedBounds);;*/
+				
+				//in Layer Control Legende ergänzen
+				layerControl.addOverlay(Layer_3, '<svg width="30" height="24" viewBox="0 -24 120 86"><use href="#developing_circles"/></svg>&nbsp;&nbsp;CO<sub>2</sub> capture - Decomissioned');
+				layerControl.addOverlay(Layer_4, '<svg width="30" height="24" viewBox="0 -24 120 86"><use href="#developing_circles"/></svg>&nbsp;&nbsp;CO<sub>2</sub> capture - Planning');
+				layerControl.addOverlay(Layer_5, '<svg width="30" height="24" viewBox="0 -24 120 86"><use href="#developing_circles"/></svg>&nbsp;&nbsp;CO<sub>2</sub> capture - FEED');
+				layerControl.addOverlay(Layer_6, '<svg width="30" height="24" viewBox="0 -24 120 86"><use href="#developing_circles"/></svg>&nbsp;&nbsp;CO<sub>2</sub> capture - Under construction');
+				layerControl.addOverlay(Layer_7, '<svg width="30" height="24" viewBox="0 -24 120 86"><use href="#operational_dots"/></svg>&nbsp;&nbsp;CO<sub>2</sub> capture - In operation<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<svg width="30" height="24" viewBox="0 -24 86 86"><use href="#pilot_scale"/></svg>&nbsp;&nbsp;Pilot scale<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<svg width="30" height="24" viewBox="0 -24 86 86"><use href="#demo_scale"/></svg>&nbsp;&nbsp;Demo scale<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<svg width="30" height="24" viewBox="0 -24 86 86"><use href="#partial_scale"/></svg>&nbsp;&nbsp;Partial scale<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<svg width="30" height="24" viewBox="0 -24 86 86"><use href="#full_scale"/></svg>&nbsp;&nbsp;Full scale<br><br>');
+			})
+			.catch(error => console.error('Fehler beim Laden der GeoJSON-Datei:', error));		
+	</script>
+  </body>
+</html>
+
+
+
